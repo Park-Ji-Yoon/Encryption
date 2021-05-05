@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+*{
+  font-family: 'Jua', sans-serif;
+}
+
+body{
+  margin:0 auto;
+  background-color: #333D79;
+  color: #FAEBEF;
+  font-family: 'Jua', sans-serif;
+}
+#container{
+
+}
+#sub_title{
+  font-size: 28px;
+  padding: 20px 0px;
+  padding-top: 0px !important;
+  text-align: center;
+}
+#content{
+  position: absolute;
+  left: 25%;
+  width: 50%;
+  height: auto;
+  background-color: #FAEBEF;
+  color: #333D79;
+  border-radius: 50px;
+  padding: 20px 40px;
+  box-sizing: border-box; /*width안에 padding, margin 포함*/
+  text-align: center;
+}
+form>p{
+  font-size: 20px;
+  padding-bottom: 10px;
+}
+input{
+  width: 70%;
+  padding: 3px 8px;
+  box-sizing: border-box; /*width안에 padding, margin 포함*/
+  border-radius: 8px;
+  background-color: #333D79;
+  border: 0;
+  outline: 0;
+  color: #FAEBEF;
+  font-size: 20px;
+}
+.change_btn{
+  margin: 30px 5px;
+  font-size: 16px;
+  padding: 5px 20px;
+  outline: 0;
+  background: #FAEBEF;
+  color: #333D79;
+  border-color: #333D79;
+  border-radius: 15px;
+}
+.change_btn:hover{
+  background: #333D79;
+  color: #FAEBEF;
+  border-color: #FAEBEF;
+}
+#gotoDeBtn{
+  display: none;
+}
+.table_title{
+  font-size: 20px;
+  margin: 10px 0px;
+}
+table{
+  margin-left: 35%;
+  width: 30%;
+  font-size: 20px;
+}
+th, td, tr {
+  padding : 3.5px 1px;
+  border: 2px solid #333D79;
+}
+#map{
+  margin-left: 15% !important;
+  width: 70% !important;
+}
+footer{
+
+}

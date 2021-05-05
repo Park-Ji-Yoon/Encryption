@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+*{
+  font-family: 'Jua', sans-serif;
+}
+
+body{
+  margin:0 auto;
+  background-color: #333D79;
+  color: #FAEBEF;
+}
+#container{
+  width: 100%;
+}
+
+#content{
+  position: absolute;
+  top: 25%;
+  left: 30%;
+  width: 40%;
+  height: 50%;
+}
+#title{
+  font-size: 80px;
+  font-family: 'Jua', sans-serif;
+  text-align: center;
+}
+#start_btn{
+  position: absolute;
+  left: 40%;
+  width: 25%;
+  font-size: 30px;
+  background: #333D79;
+  color: #FAEBEF;
+  border-color: #FAEBEF;
+  border-radius: 20px;
+  padding: 10px 25px;
+  bottom: 0;
+}
+#start_btn:hover{
+  background: #FAEBEF;
+  color: #333D79;
+  border-color: #333D79;
+}
+footer{
+
+}

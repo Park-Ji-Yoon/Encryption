@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3210박지윤_다중치환 암호</title>
+  <link rel="stylesheet" href="../css/reset.css">
+  <link rel="stylesheet" href="../css/style_encryption.css">
+  <link rel="shortcut icon" href="../images/lock.png">
+</head>
+
+<body>
+  <div id="continer">
+    <header>
+      <a href="index.html">
+        <img src="../images/arrow_bright.png"
+          style="width: 28px; margin-left: 35px; margin-top: 20px; cursor: pointer;" />
+      </a>
+      <a onClick="window.location.reload()" style="cursor: pointer;">
+        <img src="../images/go-back-arrow_dright.png"
+          style="width: 28px; margin-right: 35px; margin-top: 20px; float: right;" />
+      </a>
+      <p id="sub_title">다중 문자 치환 암호화</p>
+    </header>
+    <id id="content">
+      <form>
+        <p>평문(plain text)을 입력해주세요 (4~30자)</p>
+        <input type="text" placeholder="평문" size="30" style="margin-bottom: 20px;" id="str" autocomplete="off">
+        <p>암호키(key)을 입력해주세요 (2~15자)</p>
+        <input type="text" placeholder="암호키" size="10" id="key" autocomplete="off">
+        <br>
+      </form>
+      <button type="submit" class="change_btn" id="enBtn">암호화하기</button>
+      <p class="table_title">암호판</p>
+      <table id="table">
+        <tr>
+          <th>.</th>
+          <th>.</th>
+          <th>.</th>
+          <th>.</th>
+          <th>.</th>
+        </tr>
+        <tr>
+          <th>.</th>
+          <th>.</th>
+          <th>.</th>
+          <th>.</th>
+          <th>.</th>
+        </tr>
+        <tr>
+          <th>.</th>
+          <th>.</th>
+          <th>.</th>
+          <th>.</th>
+          <th>.</th>
+        </tr>
+        <tr>
+          <th>.</th>
+          <th>.</th>
+          <th>.</th>
+          <th>.</th>
+          <th>.</th>
+        </tr>
+        <tr>
+          <th>.</th>
+          <th>.</th>
+          <th>.</th>
+          <th>.</th>
+          <th>.</th>
+        </tr>
+      </table><br>
+      <p class="table_title">매핑</p>
+      <table id="map">
+      </table><br>
+      <p class="table_title" id="resultTitle01">암호문 (Cipher Text)</p>
+      <input type="text" placeholder="암호문 결과가 없습니다ㅠㅠ" id="encryption" autocomplete="off" /><br>
+      <button type="submit" class="change_btn" id="gotoDeBtn">바로 복호화하기</button>
+  </div>
+  <footer>
+
+  </footer>
+  </div>
+</body>
+<script>
+
+  // html 요소 담은 변수
+  const enBtn = document.getElementById("enBtn");
+  const inBtn = document.getElementById("inBtn");
+  let resultTitle01 = document.getElementById("resultTitle01");
+  let resultTitle02 = document.getElementById("resultTitle02");
+  let table = document.getElementById("table");
+  const gotoDeBtn = document.getElementById("gotoDeBtn");
+
+  const str = document.getElementById("str");
+  const key = document.getElementById("key");
+
+  // let displayBoard = document.getElementById("displayBoard"); // 암호화할 문자열
+  let enc = document.getElementById("encryption");
+  let dec = document.getElementById("decryption");
+  let board = Array(Array(5), Array(5), Array(5), Array(5), Array(5));
+  let processedKey = "";
+  let blankCheck = "";
+  let isZ = "";
+  let oddFlag = false; // 
+  let enc_result = ""; // 암호화 한 결과
+
+  enBtn.addEventListener('click', function () {
+    start();
+  });
+
+  gotoDeBtn.addEventListener('click', function () {
+    console.log("click");
+    gotoDeBtnFunction();
+  });
+
+  function start() {
+    inputConfirm();
+    let originalKey = key.value;
+    setBoard();
+    inputSettings();
+    encryption(key.value, str.value);
+    key.value = originalKey;
+  }
+
+  function makeBoard(paramKey) {
+    // 원래 있던 . 으로 이루어진 테이블 삭제하기
+    const table = document.getElementById("table");
+    while (table.hasChildNodes()) {
+      table.removeChild(table.firstChild);
+    }
+
+    let arrKey = paramKey.split('');
+    for (let i = 0; i < 5; i++) {
+      let tr = document.createElement("tr");
+      for (let j = 0; j < 5; j++) {
+        let th = document.createElement("th");
+        let text = document.createTextNode(arrKey[i * 5 + j]);
+        th.appendChild(text);
+        tr.appendChild(th);
+      }
+      table.appendChild(tr);
+    }
+
+    const gotoDeBtn = document.getElementById("gotoDeBtn");
+    gotoDeBtn.style.display = "inline";
+  }
+
+  function makeMapping(before, after) {
+    // 원래 있던 . 으로 이루어진 테이블 삭제하기
+    const map = document.getElementById("map");
+
+    let beforeKey = before.split(' ');
+    let afterKey = after.split(' ');
+    for (let i = 0; i < 2; i++) {
+      let tr = document.createElement("tr");
+      for (let j = 0; j < beforeKey.length; j++) {
+        let th = document.createElement("th");
+        let text;
+        if (i === 0) {
+          text = document.createTextNode(beforeKey[j]);
+        } else if (i === 1) {
+          text = document.createTextNode(afterKey[j]);
+        }
+        th.appendChild(text);
+        tr.appendChild(th);
+      }
+      map.appendChild(tr);
+    }
+
+    const gotoDeBtn = document.getElementById("gotoDeBtn");
+    gotoDeBtn.style.display = "inline";
+  }
+
+  // 입력받은 값들을 점검해주는 함수
+  function inputConfirm() {
+    str.value = str.value.toLowerCase();
+    key.value = key.value.toLowerCase();
+    // 입력받은 평문 또는 암호문이 빈 값이 아닌지 체크
+    if (str.value == "" || str.value == null) {
+      alert("평문 또는 암호문을 입력해주세요");
+    }
+    // 입력받은 평문 또는 암호문의 길이를 점검
+    if (str.value.length < 4 || str.value.length > 30) {
+      alert("평문 또는 암호문의 길이는 4자 이상 30자 이하여야 합니다.");
+    }
+    // 입력받은 암호키가 빈 값이 아닌지 체크
+    if (key.value == "" || key.value == null) {
+      alert("암호키를 입력해주세요");
+    }
+    // 입력받은 암호키의 길이를 점검
+    if (key.value.length < 2 || key.value.length > 15) {
+      alert("암호키의 길이는 2자 이상 15자 이하여야 합니다.");
+    }
+
+    // 특수문자 제거
+    const specialSymbol = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/gi
+    if (specialSymbol.test(str.value)) {
+      str.value = str.value.replace(specialSymbol, "");
+    }
+    if (specialSymbol.test(key.value)) {
+      key.value = key.value.replace(specialSymbol, "");
+    }
+    // 한글 제거
+    const korean = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
+    while (korean.test(str.value)) {
+      str.value = str.value.replace(korean, "");
+    }
+    while (korean.test(key.value)) {
+      key.value = key.value.replace(korean, "");
+    }
+  }
+
+  // 암호화 전 세팅
+  function inputSettings() {
+    for (let i = 0; i < (str.value).length; i++) {
+      // 'z'를 'q'로 바꿔준다.
+      if ((str.value).charAt(i) == 'z') {
+        isZ += 1;
+        str.value = (str.value).substring(0, i) + 'q' + (str.value).substring(i + 1, (str.value).length);
+      } else {
+        isZ += 0;
+      }
+    }
+  }
+
+  // board 배열에 중복없이 넣기
+  function setBoard() {
+    key.value = (key.value).replace(/ /g, ""); // 키의 공백 제거
+    key.value = (key.value).toLowerCase(); // 키를 모두 소문자로 바꿈
+
+    str.value = (str.value).replace(/ /g, ""); // 텍스트의 공백 제거
+
+    // 알파벳 전체를 일단 누적시킴
+    key.value += "abcdefghijklmnopqrstuvwxyz";
+
+    // 중복 여부 체크할 변수 초기화
+    let overlapFlag = false;
+
+    // 중복 처리 (key.value) 사용해야함
+    for (let i = 0; i < (key.value).length; i++) {
+      for (let j = 0; j < processedKey.length; j++) {
+        // 이미 최종키에 (key.value).charAt(i)가 있다면 (중복한다면)
+        if ((key.value).charAt(i) === processedKey.charAt(j)) {
+          // 중복 여부를 true로 설정
+          overlapFlag = true;
+          // 반복문 빠져나가기
+          break;
+        }
+      }
+      // 중복하지 않는다면
+      if (overlapFlag === false) {
+        // 최종키에 해당 문자를 추가함
+        processedKey += (key.value).charAt(i);
+      }
+      // 다음 반복문을 위해서 중복 처리 flag를 false로 세팅
+      overlapFlag = false;
+    }
+
+    // 암호판 배열에 최종 키 값을 하나씩 넣어줌
+    let cnt = 0;
+    for (let i = 0; i < board.length; i++) {
+      for (let j = 0; j < board[i].length; j++) {
+        board[i][j] = processedKey.charAt(cnt++);
+      }
+    }
+    makeBoard(processedKey);
+  }
+  // 암호화 함수
+  function encryption(key, str) {
+    let beforeEn = ""; // 바꾸기 전 쌍자암호를 저장할 곳
+    let afterEn = ""; // 바꾼 후 쌍자암호를 저장할 곳
+    // 두 글자의 각각의 행, 열 값
+    let firstX = 0;
+    let firstY = 0;
+    let secondX = 0;
+    let secondY = 0;
+    let encStr = "";
+
+    for (let i = 0; i < str.length; i += 2) {
+      // 2개의 문자를 가질 수 있는 배열
+      let twoCharArr = new Array(2);
+      twoCharArr[0] = str.charAt(i);
+      for (let j = 0; j < str.length; j++) {
+        // 연속하는 문자가 있다면                             
+        if (str.charAt(i) === str.charAt(i + 1)) {
+          // z가 연속해서 존재한 것이 아니면 (isZ문자열 사용)
+          // zp, pz가 원래 문자열일 수도 있었기 때문에 점검하는 것임
+          if (isZ.charAt(i, 1) === '1' ^ isZ.charAt(i + 1, 1) === '1') {
+            twoCharArr = str.charAt(i + 1, 1);
+          } else {
+            // i에서 1을 빼준다. 중복처리한
+            i -= 1;
+            // x를 누적
+            twoCharArr += 'x';
+          }
+        } else { // 연속하지 않는다면
+          twoCharArr[1] = str.charAt(i + 1);
+        }
+      }
+      beforeEn += twoCharArr;
+      beforeEn = beforeEn.replace(/,/gi, "");
+    }
+
+    // 마지막에 홀수 글자가 남을 경우
+    if (beforeEn.length % 2 === 1) {
+      beforeEn += 'x';
+      oddFlag = true;
+    }
+
+    for (let i = 0; i < beforeEn.length; i += 2) {
+      let twoCharArr = new Array(2);
+      // 한 그룹(2문자)에 있는 2개의 문자가 같으면
+      if (beforeEn[i] === beforeEn[i + 1]) {
+        // z여부에 따라 twoCharArr을 설정해줌
+        if (isZ.charAt(i, 1) === '1') {
+          twoCharArr[0] = 'q';
+          twoCharArr[1] = 'z';
+        } else {
+          twoCharArr[0] = 'z';
+          twoCharArr[1] = 'q';
+        }
+        // 최종 결과 문자열에 toCharArr 배열의 문자를 하나씩 누적(추가)
+        for (let j = 0; j < twoCharArr.length; j++) {
+          afterEn += twoCharArr[j];
+        }
+      }
+
+      for (let j = 0; j < board.length; j++) {
+        for (let n = 0; n < board[j].length; n++) {
+          if (board[j][n] === beforeEn[i]) {
+            firstX = j;
+            firstY = n;
+          }
+          if (board[j][n] === beforeEn[i + 1]) {
+            secondX = j;
+            secondY = n;
+          }
+        }
+      }
+
+      // 세로축(열)이 같다면
+      if (firstY == secondY) {
+        twoCharArr[0] = board[(firstX + 1) % 5][firstY];
+        twoCharArr[1] = board[(secondX + 1) % 5][secondY];
+      } else if (firstX == secondX) { // 가로축(행)이 같다면
+        twoCharArr[0] = board[firstX][(firstY + 1) % 5];
+        twoCharArr[1] = board[secondX][(secondY + 1) % 5];
+      } else { // 세로축(열), 가로축(행) 중 같은 것이 없다면
+        // board위 위치를 그대로 설정
+        twoCharArr[0] = board[secondX][firstY];
+        twoCharArr[1] = board[firstX][secondY];
+      }
+
+      for (let i = 0; i < twoCharArr.length; i++) {
+        afterEn += twoCharArr[i];
+      }
+      afterEn += " ";
+    }
+
+    for (let i = 0; i < afterEn.length; i++) {
+      encStr += afterEn[i][0] + "" + afterEn[i][1] + " ";
+    }
+    let imsiStr = "";
+    for (let i = 0; i < beforeEn.length; i++) {
+      if (i % 2 === 0) {
+        imsiStr += " ";
+      }
+      imsiStr += beforeEn[i];
+    }
+    imsiStr = imsiStr.trim();
+    enc.value = afterEn;
+    makeMapping(imsiStr, enc.value);
+    enc_result = afterEn.replace(/ /gi, ""); // 공백 제거 (정규식 사용)
+  }
+
+  function gotoDeBtnFunction() {
+    let send_enc = enc.value;
+    let send_key = key.value;
+    location.href = "decryption.html?" + send_enc + "/" + send_key + "/" + isZ;
+  }
+</script>
+
+</html>
